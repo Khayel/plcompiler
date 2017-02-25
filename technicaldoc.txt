@@ -1,0 +1,137 @@
+CPSC4600 Compiler Construction
+=======================================
+
+Kyle Chua
+Scanner + Parser Implementation + Scope and Type Check
+======================
+Files:
+
+
+
+
+Header files:
+- admin.h
+- scanner.h
+- symbol.h
+- token.h
+- symtable.h
+- parser.h
+
+Source files:
+- admin.cc
+- scanner.cc
+- plc.cc
+- symtable.cc
+-parser.cc
+
+
+assembler/:
+	files for the assembler
+interpreter/:
+	files for the interpreter
+input/output/other:
+-test.txt - test cases for all possible tokens
+-declarationtest.txt- testing for initializing variables, includes incorrect input such as previously defined 
+-parsertest.txt program using if statements
+- assignmenttest.txt - takes two intuts and outputs result.
+
+symbol
+======
+enumeration of all possible symbol types in PL
+enumeration of different types of variables   PL_type -  the type of the variable, 0 for universal(errors), 1 for integer, and 2 for Boolean
+enumeration of all kinds of name PL_kind- 0 for undefined(errors), 1 for variable, 2 constant, 3 procedure, 4 array 
+
+Token
+=====
+a Token has 2 main attributes its Symbol and values. its Symbol type determines what kind of token it is(sname).the values are represented by a struct currently containing an int value and the lexeme(svalue). The token class has some helper functions to set and get the Symbol, value, lexeme, and other attributes of the token.
+Attributes
+all Tokens have
+value,id,type,kind,arraysize
+
+
+
+plc.cc
+======
+- plc.cc contains the main function of the program. It ensures that there are proper command line arguments in the format:
+  compile PL_input_file Output_file
+- then it makes the appropriate objects for the compiler and calls the admin object to begin to scan
+
+Admin
+====
+The admin class is responsible for error reporting. The parser has an admin now where the admin's function takes a token and sees if it is an error token and keep track of newline tokens
+functions:
+Admin()- constructor takes in the inputstream outputstream, scanner, and a parser. It takes all  parameters by reference so there is only one instance of the streams and the scanner and parser
+~Admin() - empty destructor
+void NewLine()- when a newline or comment token is received by scan this function should be called and keeps track of lineNum. This is so that iun error reporting the error message can display thel ine
+void error()- when receiving a bad token from scan this function will increment the error count, if errCount exceeds the maximum number of hours then crash the program
+int scan(Token)- This function now takes a token from the parser. When the parser calls for a new token it will call this function and check the token for errortype tokens, and increment the line tracker if it is a newline token
+
+
+
+Scanner
+=======
+The scanner takes the input stream and then returns the token to its caller
+
+Token nextToken() - the only public function for the scanner. Most tokens are made by other functions, then returned by the this function. EOF, NEWLINE, and COMMENT tokens though are recognized, generated and returned by the nextToken. Depending on the variable currentch, which is the current character received by the input stream, nextToken() determines what type of token it may be. Then it gets the rest of the characters up until a whitespace or something that breaks the pattern for the token(see regular expressions*) and places it into the lexeme variable. The lexeme will always get the largest number of characters it can until the pattern is broken. the lexeme is then passed on to the appropriate function which does the appropriate actions for that token. 
+
+bool isWhiteSpace(ch)- determines if ch is a whitespace ' '
+bool isAlpha(ch)- determines if ch is is a-z A-z
+bool isNum(ch)- determines if ch is 0-9
+bool isSpecial(ch)- determines if ch is a valid symbol in PL.
+
+Token recognizeName(lex)- Takes in the lex, if lex is a keyword then return a WORD token, otherwise it will search for it in the symbol table, if a -1 is returned by the symbol table then insert it into the table and return an ID token, otherwise it already exists so return an ID token but there is no need to insert.
+
+Token recognizeSpecial(lex)- compares the lex to symbols in PL if it matches then return the appropriate symbol token. if it is not recognized then return a BAD_SYMBOL token 
+
+Token recognizeNumeral(lex)- takes in the string lex which should be a string of the actual number. When converting to an int if the number is larger than the maximum int size it will loop around and become negative. So after every iteration when converting you check the value, if it is negative then the value must have exceeded the max int size so return a BAD_NUMERAL token. Otherwise return a NUM token.
+
+
+
+
+Symtable
+=========
+The symbol table for the compiler is implemented using a hash table. The hash table first inserts all keywords.
+- at the moment the symbol table does not have an implementation for accessing entries in the hashtable. Only for seeing if such an object exists  and its index 
+hashfn(s)- the hash function. Take string s get the sum of the chars in ASCII value  then mod by SYMTABLESIZE
+insert(s)- insert s in the htable. s is the lexeme of the name. to insert, call the hashfunction and use the the number as the index to place s in. If the place is empty then simply insert it into that index. if it is occuppied by another name or word then check the one after it. keep checking until you find an empty one and place it there, then return the index it was inserted into. insert() can also take a Token which inserts all of the Tokens attributes not just the lexeme. The insert will also give the token an id based on its hashfn
+search(s)-  returns the index of the location of token with matching lexeme s or return -1 if not found
+getOC()- returns occuppied
+resize() - resizes the hashtable to double its current size;
+-isWord() determines if the lexeme is a word
+
+
+Parser + type check + scope check
+======
+The parser takes in a token stream and checks to see if the tokens are syntactically correct based on the grammar rules implemented.
+-Parser()- the constructor takes a scanner handle and an admin handle. this scanner is the same scanner held by the admin object. the admin is the same object from the main.
+-match();- all  this does is gets the next token. if a token is a newline or comment it throws them away. match() does not verify if a token is the correct one since all match() calls are under an if statement in the grammar rule to verify it.
+-matchName(); a match function for the different types of names
+- syntaxeror() - all this does is grab the next token
+-scopeError() - a call to this means a scope error on the the token parameter
+PL_type foo(); - functions returning a PL_type is to check that the types are valid;
+void foo(vector<PL_Type> c)
+void foo(PL_type x) - functions with paramaters of PL_types by references do the same thing but since a function can be recursively called it is easier to pass the vectors or the type by reference. Example in a Variable definition you need a variablelist but for variablelist you get a var then call vl2 which will call variablelist again if there is another variable. So by declaring the vector in VariableDefinition and by passing that vector through the functions you can add into it easily.
+search()- this search function was to search all blocks for a lexeme, returning the token if it exists. This is done by taking the block table  searching the top symtable and if it does not exist pop it and place the symtable to a another stack that will hold it temporarily. if the token is found then place the tmp stack back into the blocktable by popping to ensure the order works and return the token.// does not work..
+- the parser now outputs intermediate code for the assembly to read;
+
+
+Assembler
+==========
+When the assembler is executed it will generate 2 files. one is  filename.asm which shows what was emitted by the parser ex( PROG 1 2 VAR etc..) and the otherfile is just the filename which is used by the interpreter
+
+Interpreter
+
+
+Regular expressions for some tokens
+=================
+alpha = a-z | a-Z
+num = 0-9
+keyword = begin,end,const,array,integer,Boolean,proc,skip,read,write,call,if,do,fi,false,true
+<ID> = alpha(alpha|num)*
+<NUM> = num(num)*
+<WORD> = keyword
+Appropriate symbols for all symbol tokens
+
+Grammar Rules
+=============
+PL p.287 of Brinch Hansen on Pascal Compilers

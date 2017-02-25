@@ -1,0 +1,6 @@
+begin
+skip ;
+read d;
+write a+b;
+
+end .

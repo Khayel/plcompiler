@@ -1,0 +1,23 @@
+$test
+begin 
+$Basic declarations
+$ const value from number and from previously defined variable
+const const1 = 3;
+const const2 = const1;
+
+$variable declarations
+$variable lists, declaring already defined vars, integers and booleans, and arrays
+integer a;
+integer b,c;
+integer b; $already defined
+Boolean d;
+Boolean e,f;
+Boolean f; $already defined
+integer array arr1,arr2,arr3[5];
+Boolean array boo1,boo2,boo3[const1];
+
+$assignment statements
+
+a,b := 3,5;
+
+end.

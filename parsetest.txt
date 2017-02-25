@@ -1,0 +1,13 @@
+begin
+
+integer x,y,z;
+const constant = 2;
+
+Boolean test;
+test := true;
+x,y,z:=1,2,3;
+if y > z -> test := false; []
+if test-> x := y; []
+if ~test-> x := z;
+fi;
+end;

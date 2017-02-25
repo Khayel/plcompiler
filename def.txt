@@ -1,0 +1,14 @@
+begin
+
+integer x;
+integer q,w,e;
+integer array x[3] ;
+Boolean t;
+Boolean y,z;
+proc proceduretest
+     begin
+	integer l;
+	end
+
+
+end .

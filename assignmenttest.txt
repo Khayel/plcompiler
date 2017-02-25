@@ -1,0 +1,7 @@
+begin
+integer x,y,z;
+read x;
+read y;
+z := x+y;
+write z;
+end.

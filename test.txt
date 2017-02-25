@@ -1,0 +1,39 @@
+$word test
+begin end const array integer 
+Boolean proc skip read write call
+if do fi od false true
+
+_
+name
+name1
+name_123
+
+12345
+1
+2
+3
+4
+5
+6s
+
+$comment
+
+$valid symbols
+. , ; [ ] & | ~ < = > + - 
+* / \ ( ) := [] ->
+<= >= ==
+
+$bad token type test
+$bad tokens output errors in the console and are not placed in the token stream
+$invalid symbol
+-- h h
+x = x + y
+
+$test of identifiers with same hashfunction value
+dd
+ce
+
+randomtests = 54 - 2 + 7 * (x / 2)
+
+$test with and without spaces
+a=a-2+4* (6-4 ) + 2 -
